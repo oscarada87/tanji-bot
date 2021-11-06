@@ -2,8 +2,11 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from stocks import stock
 from flask_migrate import Migrate
+import twstock
+
 
 # initialization
+twstock.__update_codes()
 db = SQLAlchemy()
 app = Flask(__name__)
 app.config.from_object('instance.config.DevelopmentConfig')

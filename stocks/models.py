@@ -27,9 +27,9 @@ class DailyInformation(db.Model):
     open: float  # 今日開盤價
     close: float  # 今日收盤價
     spread: float  # 今日漲跌幅
-    trading_volume: int  # 今日交易量
-    trading_money: int  # 今日交易金額
-    trading_turnover: int  # 今日交易筆數
+    trading_volume: str  # 今日交易量
+    trading_money: str  # 今日交易金額
+    trading_turnover: str  # 今日交易筆數
     current_date: datetime.date  # 今日日期
 
     __tablename__ = 'stock_daily_informations'
@@ -39,7 +39,10 @@ class DailyInformation(db.Model):
     open = db.Column(db.Float)
     close = db.Column(db.Float)
     spread = db.Column(db.Float)
-    trading_volume = db.Column(db.Integer)
-    trading_money = db.Column(db.Integer)
-    trading_turnover = db.Column(db.Integer)
+    trading_volume = db.Column(db.String(100))
+    trading_money = db.Column(db.String(100))
+    trading_turnover = db.Column(db.String(100))
     current_date = db.Column(db.Date, nullable=False)
+
+    def percentage(self):
+        round((self.spread/self.close) * 100, 2)

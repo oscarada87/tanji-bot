@@ -9,6 +9,8 @@ flask-sqlalchemy = "*"
 flask = "*"
 flask-login = "*"
 flask-migrate = "*"
+finmind = "*"
+twstock = "*"
 
 [dev-packages]
 
