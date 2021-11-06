@@ -5,6 +5,12 @@ name = "pypi"
 
 [packages]
 docker-compose = "*"
+flask = "*"
+requests = "*"
+beautifulsoup4 = "*"
+webdriver-manager = "*"
+selenium = "*"
+line-bot-sdk = "*"
 
 [dev-packages]
 
