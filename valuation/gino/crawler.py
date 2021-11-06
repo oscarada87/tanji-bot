@@ -1,10 +1,10 @@
-from posixpath import join
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup, element
+from flask import current_app
 
 class RevenueCrawler:
   def __init__(self, stock_id):
@@ -13,10 +13,13 @@ class RevenueCrawler:
 
   def send(self):
     options = Options()
+    options.add_argument("--no-sandbox")
     options.add_argument("--disable-notifications")
     options.add_argument("--headless")
     options.add_argument("--window-size=1920,1080")
-    browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+    options.binary_location = current_app.config['GOOGLE_CHROME_BIN']
+    # browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+    browser = webdriver.Chrome(executable_path=current_app.config['CHROMEDRIVER_PATH'], chrome_options=options)
     browser.get(self.url)
     browser.find_element(By.ID, 'co_id').send_keys(self.stock_id)
     browser.find_element(By.XPATH, "//input[@value=' 查詢 ']").click()

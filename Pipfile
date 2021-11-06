@@ -11,6 +11,7 @@ beautifulsoup4 = "*"
 webdriver-manager = "*"
 selenium = "*"
 line-bot-sdk = "*"
+gunicorn = "*"
 
 [dev-packages]
 
