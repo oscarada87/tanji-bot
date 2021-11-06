@@ -7,11 +7,13 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,
+    MessageEvent, TextMessage, TextSendMessage, ImageSendMessage,
 )
 
 from valuation.gino.crawler import RevenueCrawler
 import re
+
+from meow.meow import Meow
 
 app = Flask(__name__)
 app.config.from_object('instance.config.Config')
@@ -42,13 +44,20 @@ def callback():
 def handle_message(event):
     print(event)
     user_input = event.message.text
-    if '營收' not in user_input:
-      return True
-    crawler = RevenueCrawler(re.findall('\d+',user_input)[0])
-    msg = crawler.send()
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=msg))
+    if '營收' in user_input:
+        crawler = RevenueCrawler(re.findall('\d+', user_input)[0])
+        msg = crawler.send()
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=msg)
+        )
+    if any(x in user_input for x in ['喵', '探吉', '咪魯']):
+        url = Meow().meow()
+        msg = ImageSendMessage(
+            original_content_url=url,
+            preview_image_url=url
+        )
+        line_bot_api.reply_message(event.reply_token, msg)
 
 
 if __name__ == "__main__":

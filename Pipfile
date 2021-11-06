@@ -12,6 +12,7 @@ webdriver-manager = "*"
 selenium = "*"
 line-bot-sdk = "*"
 gunicorn = "*"
+cloudinary = "*"
 
 [dev-packages]
 

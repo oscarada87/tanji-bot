@@ -2,7 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
+# from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup, element
 from flask import current_app
 
@@ -17,22 +19,23 @@ class RevenueCrawler:
     options.add_argument("--disable-notifications")
     options.add_argument("--headless")
     options.add_argument("--window-size=1920,1080")
-    options.binary_location = current_app.config['GOOGLE_CHROME_BIN']
     # browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+    options.binary_location = current_app.config['GOOGLE_CHROME_BIN']
     browser = webdriver.Chrome(executable_path=current_app.config['CHROMEDRIVER_PATH'], chrome_options=options)
     browser.get(self.url)
     browser.find_element(By.ID, 'co_id').send_keys(self.stock_id)
     browser.find_element(By.XPATH, "//input[@value=' 查詢 ']").click()
+    delay = 3 # seconds
     try:
       element = browser.find_element(By.XPATH, "//*[contains(text(), '查無最新資訊')]")
       return "{} 查無最新營收資訊".format(self.stock_id)
     except NoSuchElementException:
       pass
-      
+
     browser.save_screenshot('screenshot.png')
-    revenue = browser.find_element(By.CSS_SELECTOR, '#table01 > table.hasBorder > tbody > tr:nth-child(2) > td').text.replace(' ', '') + ' 元'#.replace(',', '')
-    date = browser.find_element(By.CSS_SELECTOR, '#table01 > table:nth-child(5) > tbody > tr > td:nth-child(2)').text
-    name = browser.find_element(By.CSS_SELECTOR, '#table01 > table:nth-child(4) > tbody > tr > td > b').text.split('\u3000')[1]
+    revenue = WebDriverWait(browser, delay).until(EC.presence_of_element_located((By.XPATH, '//*[@id="table01"]/table[4]/tbody/tr[2]/td'))).text.replace(' ', '') + ' 元'#.replace(',', '')
+    date = browser.find_element(By.XPATH, '//*[@id="table01"]/table[3]/tbody/tr/td[2]').text
+    name = browser.find_element(By.XPATH, '//*[@id="table01"]/table[2]/tbody/tr/td/b').text.split('\u3000')[1]
     msg = str.join('\n', ["公司名稱: " + name, "時間: " + date,"營收: " + revenue])
     return msg
 
