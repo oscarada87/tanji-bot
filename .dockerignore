@@ -1,0 +1,14 @@
+**/.git
+**/.DS_Store
+**/node_modules
+*.log
+__pycache__/
+*.py[cod]
+*$py.class
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.gitignore
+.vscode
+.env
