@@ -7,7 +7,7 @@ import random
 
 load_dotenv()
 
-class Meow():
+class CloudImage():
   def __init__(self) -> None:
       cloudinary.config(
         cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),  
@@ -17,4 +17,8 @@ class Meow():
 
   def meow(self):
     result = cloudinary.Search().expression('folder=miru/*').execute()
+    return random.choice(result['resources'])['secure_url']
+
+  def wang(self):
+    result = cloudinary.Search().expression('folder=doggy/*').execute()
     return random.choice(result['resources'])['secure_url']

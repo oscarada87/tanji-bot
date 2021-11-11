@@ -13,7 +13,7 @@ from linebot.models import (
 from valuation.gino.crawler import RevenueCrawler
 import re
 
-from meow.meow import Meow
+from cloud_image.cloud_image import CloudImage
 
 app = Flask(__name__)
 app.config.from_object('instance.config.Config')
@@ -51,8 +51,15 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(text=msg)
         )
-    if any(x in user_input for x in ['喵', '探吉', '咪魯']):
-        url = Meow().meow()
+    elif any(x in user_input for x in ['喵', '探吉', '咪魯']):
+        url = CloudImage().meow()
+        msg = ImageSendMessage(
+            original_content_url=url,
+            preview_image_url=url
+        )
+        line_bot_api.reply_message(event.reply_token, msg)
+    elif any(x in user_input for x in ['汪']):
+        url = CloudImage().wang()
         msg = ImageSendMessage(
             original_content_url=url,
             preview_image_url=url
