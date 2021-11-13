@@ -16,12 +16,11 @@
 ## Development
 
 #### 安裝環境
-`pipenv install` & `docker-compose up`
+`docker-compose up`
 
-python 尚未包入 docker 中
+## Deploy
+在最外層
+`pipenv install`
 
-`pipenv run python app.py`
-
-## Heroku
-
-`git push heroku main`
+`fab -H [SERVER_IP] deploy --branch [Branch Name]`
+branch 預設為 `main`
