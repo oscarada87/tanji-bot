@@ -13,6 +13,7 @@ selenium = "*"
 line-bot-sdk = "*"
 gunicorn = "*"
 cloudinary = "*"
+fabric = "*"
 
 [dev-packages]
 
