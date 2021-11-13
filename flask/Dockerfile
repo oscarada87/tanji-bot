@@ -1,5 +1,6 @@
 FROM python:3.9.7
 
+EXPOSE 8002
 WORKDIR /flask
 ADD . /flask
 
@@ -22,5 +23,3 @@ RUN pip install --upgrade pip
 RUN pip install pipenv
 
 RUN pipenv install
-
-CMD pipenv run python app.py
