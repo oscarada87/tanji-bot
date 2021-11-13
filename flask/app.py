@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, abort
 
 from linebot import (
@@ -20,6 +21,10 @@ app.config.from_object('instance.config.Config')
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])
+
+@app.route('/')
+def home():
+    return '(^=◕ᴥ◕=^)'
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -68,4 +73,4 @@ def handle_message(event):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')
