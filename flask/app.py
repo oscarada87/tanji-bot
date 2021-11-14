@@ -15,6 +15,7 @@ from valuation.gino.crawler import RevenueCrawler
 import re
 
 from cloud_image.cloud_image import CloudImage
+from stock_lib.stock_info import StockInfo
 
 app = Flask(__name__)
 app.config.from_object('instance.config.Config')
@@ -70,7 +71,17 @@ def handle_message(event):
             preview_image_url=url
         )
         line_bot_api.reply_message(event.reply_token, msg)
-
+    elif '融資' in user_input:
+        try:
+            stock_info = StockInfo()
+            margin_purchase = stock_info.margin_purchase(re.findall('\d+', user_input)[0])
+            msg = margin_purchase.message()
+        except:
+            msg = '查無此股票'
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=msg)
+        )
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
