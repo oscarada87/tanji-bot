@@ -22,4 +22,4 @@ ENV DISPLAY=:99
 RUN pip install --upgrade pip
 RUN pip install pipenv
 
-RUN pipenv install
+RUN pipenv install --skip-lock
