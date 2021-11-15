@@ -47,7 +47,7 @@ class MarginPurchase:
 
     # 斷頭價 (維持率不足 130 %)
     def warning_price(self):
-        return round(self._latest_price * 0.4 * 1.3, 2)
+        return round(self._latest_price * 0.6 * 1.3, 2)
 
     def message(self):
         msg_list = []
