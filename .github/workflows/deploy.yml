@@ -1,0 +1,52 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
+# For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
+
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      ssh_private_key:
+        required: true
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Run SSH Agent
+      uses: webfactory/ssh-agent@v0.4.1
+      with:
+        ssh-private-key: ${{ secrets.ssh_private_key }}
+
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+  
+    - name: Install Dependencies
+      working-directory: ./tanjimeow
+      run: |
+        python -m pip install --upgrade pip
+        pip install pipenv
+        pipenv install
+
+    - name: Deploy to ${{ env.DEPLOY_ENVIRONMENT }}
+      working-directory: ./tanjimeow
+      id: first_deploy
+      run: pipenv run fab -H ${{ secrets.deploy_host }} deploy
