@@ -1,14 +1,7 @@
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
 from fabric import task
 
 @task
 def deploy(c, branch='main'):
-    # server = os.getenv('SERVER')
-    # c = Connection(server)
     print('Start deploying!')
     # stop container
     result = c.run('cd tanjimeow && docker-compose down', warn=True)

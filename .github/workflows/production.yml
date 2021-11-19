@@ -1,0 +1,15 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    uses: oscarada87/tanjimeow/.github/workflows/deploy.yml@main
+    with:
+      environment: production
+    secrets:
+      ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+      deploy_host: ${{ secrets.DEPLOY_HOST }}
