@@ -20,6 +20,6 @@ def deploy(c, branch='main'):
     print('copy env file...')
 
     # run docker compose
-    result = c.run('cd tanjimeow && docker-compose up --force-recreate --build --remove-orphans -d', warn=True)
+    result = c.run('cd tanjimeow && docker-compose up --build --remove-orphans -d', warn=True)
     print(result.stdout)
     print('Done!')
