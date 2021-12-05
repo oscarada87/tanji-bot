@@ -1,5 +1,6 @@
-import os
 from flask import Flask, request, abort
+from flask_sqlalchemy import SQLAlchemy
+from stocks import stock
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -17,8 +18,11 @@ import re
 from cloud_image.cloud_image import CloudImage
 from stock_lib.stock_info import StockInfo
 
+db = SQLAlchemy()
 app = Flask(__name__)
 app.config.from_object('instance.config.Config')
+db.init_app(app)
+app.register_blueprint(stock, url_prefix='/stock')
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])

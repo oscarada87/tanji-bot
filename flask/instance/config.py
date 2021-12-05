@@ -12,10 +12,8 @@ class Config(object):
     LINE_CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET')
     GOOGLE_CHROME_BIN = os.getenv('GOOGLE_CHROME_BIN')
     CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH')
-
-
-class DevelopmentConfig(Config):
-    ENVIRONMENT = 'development'
-    DEBUG = True
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-    JSON_AS_ASCII = False
+    ENV = os.getenv('ENVIRONMENT')
+    if os.getenv('ENVIRONMENT') == 'development':
+        DEVELOPMENT = True
+        DEBUG = True 
+        SQLALCHEMY_TRACK_MODIFICATIONS = True   

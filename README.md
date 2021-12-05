@@ -18,6 +18,9 @@
 #### 安裝環境
 `docker-compose up`
 
+## Migration
+`alembic upgrade head`
+
 ## Deploy
 在最外層
 `pipenv install`
