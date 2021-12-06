@@ -9,18 +9,21 @@ db = SQLAlchemy()
 class Stock(db.Model):
     __tablename__ = 'stocks'
     id: int  # 股票代碼
+    code: str  # 股票代碼
     name: str  # 股票名稱
     updated_at: datetime  # 更新時間
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True, index=True)
-    name = db.Column(db.String(10), nullable=False, index=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    code = db.Column(db.String(20), nullable=False, index=True, unique=True)
+    name = db.Column(db.String(20), nullable=False, index=True)
     updated_at = db.Column(db.DateTime, nullable=False) 
     after_hour_information = db.relationship('AfterHourInformation', uselist=False, backref='stock')
 
 
 @dataclass
 class AfterHourInformation(db.Model):
-    stock_id: int  # 股票代碼
+    id: int
+    stock_id: str  # foreign key
     max: float  # 今日最高價
     min: float  # 今日最低價
     open: float  # 今日開盤價
@@ -32,7 +35,8 @@ class AfterHourInformation(db.Model):
     current_date: datetime.date  # 今日日期
 
     __tablename__ = 'stocks_after_hour_information'
-    stock_id = db.Column(db.Integer, db.ForeignKey('stocks.id'), nullable=False, primary_key=True, index=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    stock_id = db.Column(db.Integer, db.ForeignKey('stocks.id'), nullable=False, unique=True)
     max = db.Column(db.Float)
     min = db.Column(db.Float)
     open = db.Column(db.Float)

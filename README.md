@@ -19,7 +19,10 @@
 `docker-compose up`
 
 ## Migration
+`alembic revision -m "my migration"`
+
 `alembic upgrade head`
+`alembic downgrade -1`
 
 ## Deploy
 在最外層

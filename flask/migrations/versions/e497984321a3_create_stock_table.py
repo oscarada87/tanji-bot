@@ -19,15 +19,17 @@ depends_on = None
 def upgrade():
     op.create_table(
         'stocks',
-        sa.Column('id', sa.Integer, primary_key=True, nullable=False, index=True),
-        sa.Column('name', sa.String, nullable=False, index=True),
+        sa.Column('id', sa.Integer, primary_key=True, nullable=False),
+        sa.Column('code', sa.String(20), nullable=False, index=True, unique=True),
+        sa.Column('name', sa.String(20), nullable=False, index=True),
         sa.Column('updated_at', sa.DateTime, nullable=False),
     )
     op.create_table(
         'stocks_after_hour_information',
-        sa.Column('stock_id', sa.Integer, primary_key=True, nullable=False, index=True),
+        sa.Column('id', sa.Integer, primary_key=True, nullable=False),
+        sa.Column('stock_id', sa.Integer, nullable=False, index=True, unique=True),
         sa.ForeignKeyConstraint(['stock_id'], ['stocks.id']),
-        sa.PrimaryKeyConstraint('stock_id'),
+        sa.PrimaryKeyConstraint('id'),
         sa.Column('max', sa.Float),
         sa.Column('min', sa.Float),
         sa.Column('open', sa.Float),
@@ -40,5 +42,5 @@ def upgrade():
     )
 
 def downgrade():
-    op.drop_table('stocks')
     op.drop_table('stocks_after_hour_information')
+    op.drop_table('stocks')
