@@ -1,6 +1,7 @@
-from flask import Flask, request, abort
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, abort, render_template
+from extensions import scheduler, db
 from stocks import stock
+from tasks import worker
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -18,10 +19,11 @@ import re
 from cloud_image.cloud_image import CloudImage
 from stock_lib.stock_info import StockInfo
 
-db = SQLAlchemy()
 app = Flask(__name__)
 app.config.from_object('instance.config.Config')
 db.init_app(app)
+scheduler.init_app(app)
+scheduler.start()
 app.register_blueprint(stock, url_prefix='/stock')
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
@@ -31,7 +33,7 @@ handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])
 def home():
     return '(^=◕ᴥ◕=^)'
 
-@app.route("/callback", methods=['POST'])
+@app.route("/line/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
     signature = request.headers['X-Line-Signature']
@@ -86,6 +88,10 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(text=msg)
         )
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

@@ -17,6 +17,7 @@ fugle-realtime = "*"
 python-dotenv = "*"
 alembic = "*"
 flask-sqlalchemy = "*"
+flask-apscheduler = "*"
 
 [dev-packages]
 

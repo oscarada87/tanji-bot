@@ -12,7 +12,7 @@ RUN apk update
 RUN apk add chromium chromium-chromedriver
 
 # install python add on
-RUN apk add openssl-dev libffi-dev gcc musl-dev
+RUN apk add openssl-dev libffi-dev gcc musl-dev g++
 
 # set display port to avoid crash
 ENV DISPLAY=:99

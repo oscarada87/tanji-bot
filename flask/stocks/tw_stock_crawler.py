@@ -1,10 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask import current_app
 from .models import Stock, AfterHourInformation
 from datetime import datetime
 import requests
 
-class TwStockWorker:
+class TwStockCrawler:
+    def run(self):
+        self.grab_daily_tw_stock_info()
+        self.grab_daily_tw_otc_info()
+
     def __init__(self):
         self.db = SQLAlchemy()
         self.tw_stock_url = 'https://www.twse.com.tw/exchangeReport/STOCK_DAY_ALL?response=json'

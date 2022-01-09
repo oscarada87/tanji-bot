@@ -12,8 +12,10 @@ class Config(object):
     LINE_CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET')
     GOOGLE_CHROME_BIN = os.getenv('GOOGLE_CHROME_BIN')
     CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH')
+    SCHEDULER_TIMEZONE = "Asia/Taipei"
     ENV = os.getenv('ENVIRONMENT')
     if os.getenv('ENVIRONMENT') == 'development':
+        SCHEDULER_API_ENABLED = True
         DEVELOPMENT = True
         DEBUG = True 
         SQLALCHEMY_TRACK_MODIFICATIONS = True   
