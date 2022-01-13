@@ -1,4 +1,3 @@
-import os
 from flask import Flask, request, abort
 
 from linebot import (
@@ -17,8 +16,11 @@ import re
 from cloud_image.cloud_image import CloudImage
 from stock_lib.stock_info import StockInfo
 
+from yearend import yearend
+
 app = Flask(__name__)
-app.config.from_object('instance.config.Config')
+app.config.from_object('instance.config.DevelopmentConfig')
+app.register_blueprint(yearend, url_prefix='/2021yearend')
 
 line_bot_api = LineBotApi(app.config['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['LINE_CHANNEL_SECRET'])
