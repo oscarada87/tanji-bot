@@ -16,7 +16,7 @@ def deploy(c, branch='main'):
     print(result.stdout)
 
     # clone env file
-    result = c.run('cp .env tanjimeow/', warn=True)
+    result = c.run('cp shared/.tanjimeow.env tanjimeow/.env', warn=True)
     print('copy env file...')
 
     # run docker compose
