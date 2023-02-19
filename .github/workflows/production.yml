@@ -8,8 +8,6 @@ on:
 jobs:
   deploy:
     uses: ./.github/workflows/deploy.yml
-    with:
-      environment: production
     secrets:
       ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
       deploy_host: ${{ secrets.DEPLOY_HOST }}

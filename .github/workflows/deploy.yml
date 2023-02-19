@@ -9,10 +9,6 @@ name: Deploy
 
 on:
   workflow_call:
-    inputs:
-      environment:
-        required: true
-        type: string
     secrets:
       ssh_private_key:
         required: true
@@ -25,20 +21,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-        with:
-          path: tanjimeow
-
-      - name: Run SSH Agent
-        uses: webfactory/ssh-agent@v0.4.1
-        with:
-          ssh-private-key: ${{ secrets.ssh_private_key }}
-
       - name: remote ssh command
         uses: appleboy/ssh-action@v0.1.7
         with:
