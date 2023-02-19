@@ -1,40 +1,11 @@
-version: '3.8'   # Docker Engine release 18.02.0+
+version: '3.8' # Docker Engine release 18.02.0+
 
 services:
   flask:
-    build: ./flask
-    container_name: flask
+    build: ./
+    container_name: linebot
     # restart: always
-    command: gunicorn --bind 0.0.0.0:5000 app:app
+    command: gunicorn --bind 0.0.0.0:5000 --chdir src app:app
     env_file: .env
     ports:
-      - "5000:5000"
-    # depends_on:
-    #   - db
-
-  # db:
-  #   image: postgres
-  #   restart: always
-  #   environment:
-  #     - POSTGRES_USER=${POSTGRES_USER}
-  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  #     - POSTGRES_DB=${POSTGRES_DB}
-  #   ports:
-  #     - "5433:5432"
-  #   volumes:
-  #     - postgres-data:/var/lib/postgresql/data
-  
-  # nginx:
-  #   build: ./nginx
-  #   container_name: nginx
-  #   # restart: always
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-
-  #   depends_on:
-  #     - flask
-
-volumes:
-
-  postgres-data:
+      - '5000:5000'

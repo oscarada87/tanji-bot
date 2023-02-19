@@ -22,9 +22,8 @@ RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
 
 COPY Pipfile.lock /
-COPY Pipfile /
-RUN pipenv lock -r > requirements.txt
+RUN pipenv requirements > requirements.txt
 RUN pip install -r requirements.txt
 
-COPY . /flask
-WORKDIR /flask
+COPY . /src
+WORKDIR /src

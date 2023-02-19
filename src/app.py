@@ -79,6 +79,7 @@ def handle_message(event):
         except:
             msg = '查無此股票'
         line_bot_api.reply_message(
+          
             event.reply_token,
             TextSendMessage(text=msg)
         )

@@ -17,6 +17,7 @@ fugle-realtime = "*"
 python-dotenv = "*"
 
 [dev-packages]
+waitress = "*"
 
 [requires]
 python_version = "3.9"
