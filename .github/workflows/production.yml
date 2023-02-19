@@ -3,13 +3,14 @@ name: Deploy to Production
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
-    uses: oscarada87/tanjimeow/.github/workflows/deploy.yml@main
+    uses: ./.github/workflows/deploy.yml
     with:
       environment: production
     secrets:
       ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
       deploy_host: ${{ secrets.DEPLOY_HOST }}
+      deploy_username: ${{ secrets.DEPLOY_USERNAME }}

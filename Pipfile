@@ -4,7 +4,17 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fabric = "*"
+flask = "*"
+requests = "*"
+beautifulsoup4 = "*"
+webdriver-manager = "*"
+selenium = "*"
+line-bot-sdk = "*"
+gunicorn = "*"
+cloudinary = "*"
+lxml = "*"
+fugle-realtime = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

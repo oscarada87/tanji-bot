@@ -18,7 +18,8 @@ on:
         required: true
       deploy_host:
         required: true
-
+      deploy_username:
+        required: true
 
 jobs:
   deploy:
@@ -28,29 +29,26 @@ jobs:
       DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v2
-      with:
-        path: tanjimeow
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          path: tanjimeow
 
-    - name: Run SSH Agent
-      uses: webfactory/ssh-agent@v0.4.1
-      with:
-        ssh-private-key: ${{ secrets.ssh_private_key }}
+      - name: Run SSH Agent
+        uses: webfactory/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.ssh_private_key }}
 
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-  
-    - name: Install Dependencies
-      run: |
-        cd tanjimeow
-        python -m pip install --upgrade pip
-        pip install pipenv
-        pipenv install
-
-    - name: Deploy to ${{ env.DEPLOY_ENVIRONMENT }}
-      run: |
-        cd tanjimeow
-        pipenv run fab -H ${{ secrets.deploy_host }} deploy
+      - name: remote ssh command
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.deploy_host }}
+          username: ${{ secrets.deploy_username }}
+          key: ${{ secrets.ssh_private_key }}
+          script_stop: true
+          script: |
+            cd tanjimeow && docker-compose down
+            git fetch origin main
+            git reset --hard origin/main
+            cp ~/shared/.tanjimeow.env ~/tanjimeow/.env
+            docker-compose up --build --remove-orphans -d
