@@ -4,23 +4,15 @@
 
 - 輸入 喵 / 探吉 / 咪魯 / 汪會隨機從我的圖床回傳圖片
 - 輸入股票代碼 + 營收 就會回傳最新一個月該公司的營收
-
-## 後端
-
-- 敬請期待
-
-## 前端
-
-- 敬請期待
+- 輸入股票代碼 + 融資 就會回傳融資相關資訊
 
 ## Development
 
-#### 安裝環境
-`docker-compose up`
+安裝 python 3.9\
+`pip3 install pipenv`\
+`pipenv install`\
+`pipenv run ./src/app.py`\
 
-## Deploy
-在最外層
-`pipenv install`
+#### Docker
 
-`fab -H [SERVER_IP] deploy --branch [Branch Name]`
-branch 預設為 `main`
+`docker-compose up -d`

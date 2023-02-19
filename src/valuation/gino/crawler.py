@@ -22,9 +22,6 @@ class RevenueCrawler:
     self.browser = webdriver.Chrome(options=options)
 
   def send(self):
-    # browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
-    # options.binary_location = current_app.config['GOOGLE_CHROME_BIN']
-    # browser = webdriver.Chrome(executable_path=current_app.config['CHROMEDRIVER_PATH'], chrome_options=options)
     self.browser.get(self.url)
     self.browser.find_element(By.ID, 'co_id').send_keys(self.stock_id)
     self.browser.find_element(By.XPATH, "//input[@value=' 查詢 ']").click()
@@ -36,11 +33,30 @@ class RevenueCrawler:
       pass
 
     self.browser.save_screenshot('screenshot.png')
-    revenue = WebDriverWait(self.browser, delay).until(EC.presence_of_element_located((By.XPATH, '//*[@id="table01"]/table[4]/tbody/tr[2]/td'))).text.replace(' ', '') + ' 元'#.replace(',', '')
+    month_revenue = WebDriverWait(self.browser, delay).until(EC.presence_of_element_located((By.XPATH, '//*[@id="table01"]/table[4]/tbody/tr[2]/td'))).text.replace(' ', '') + ',000'
+    month_revenue_percentage = self.browser.find_element(By.XPATH, '//*[@id="table01"]/table[4]/tbody/tr[5]/td').text.replace(' ', '')
+    if '-' in month_revenue_percentage:
+        month_revenue_percentage = '📉 ' + month_revenue_percentage
+    else:
+        month_revenue_percentage = '📈 ' + month_revenue_percentage
+    year_revenue = self.browser.find_element(By.XPATH, '//*[@id="table01"]/table[4]/tbody/tr[6]/td').text.replace(' ', '') + ',000'
+    year_revenue_percentage = self.browser.find_element(By.XPATH, '//*[@id="table01"]/table[4]/tbody/tr[9]/td').text.replace(' ', '')
+    if '-' in year_revenue_percentage:
+        year_revenue_percentage = '📉 ' + year_revenue_percentage
+    else:
+        year_revenue_percentage = '📈 ' + year_revenue_percentage
     date = self.browser.find_element(By.XPATH, '//*[@id="table01"]/table[3]/tbody/tr/td[2]').text
     name = self.browser.find_element(By.XPATH, '//*[@id="table01"]/table[2]/tbody/tr/td/b').text.split('\u3000')[1]
     self.tearDown()
-    msg = str.join('\n', ["公司名稱: " + name, "時間: " + date,"營收: " + revenue])
+    msg = str.join('\n', [
+        '公司名稱: ' + name, 
+        '時間: ' + date,
+        '本月營收: ' + month_revenue + ' 元',
+        '本月較同期增減百分比: ' + month_revenue_percentage + ' %',
+        '今年營收累積: ' + year_revenue + ' 元',
+        '今年營收累積較同期增減百分比: ' + year_revenue_percentage + ' %'
+      ]
+    )
     return msg
 
   def tearDown(self):
@@ -49,7 +65,7 @@ class RevenueCrawler:
 
   
 if __name__ == '__main__':
-  a = RevenueCrawler(2376)
+  a = RevenueCrawler(2330)
   temp = a.send()
   print(temp)
 
