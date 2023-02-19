@@ -3,6 +3,9 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[requires]
+python_version = "3.9"
+
 [packages]
 flask = "*"
 requests = "*"
@@ -10,14 +13,8 @@ beautifulsoup4 = "*"
 webdriver-manager = "*"
 selenium = "*"
 line-bot-sdk = "*"
-gunicorn = "*"
-cloudinary = "*"
-lxml = "*"
-fugle-realtime = "*"
 python-dotenv = "*"
-
-[dev-packages]
-waitress = "*"
-
-[requires]
-python_version = "3.9"
+cloudinary = "==1.29.0"
+gunicorn = "*"
+fugle-realtime = "*"
+lxml = "*"

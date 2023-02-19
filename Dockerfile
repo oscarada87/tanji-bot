@@ -8,7 +8,7 @@ RUN echo "http://dl-4.alpinelinux.org/alpine/v3.14/main" >> /etc/apk/repositorie
     echo "http://dl-4.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/repositories
 
 # install chromedriver
-RUN apk update
+# RUN apk update
 RUN apk add chromium chromium-chromedriver
 
 # install python add on
