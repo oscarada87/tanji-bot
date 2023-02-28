@@ -8,7 +8,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageSendMessage,
+    MessageEvent, TextMessage, ImageMessage, TextSendMessage, ImageSendMessage,
 )
 
 from valuation.gino.crawler import RevenueCrawler
@@ -36,53 +36,68 @@ def callback():
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
-    # handle webhook body
+    # handle webhook body               
     try:
+        print(body)
         handler.handle(body, signature)
     except InvalidSignatureError:
         print("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
-
+    
     return 'OK'
 
 
-@handler.add(MessageEvent, message=TextMessage)
+@handler.add(MessageEvent)
+# message=TextMessage
+# message=ImageMessage
 def handle_message(event):
     print(event)
-    user_input = event.message.text
-    if '營收' in user_input:
-        crawler = RevenueCrawler(re.findall('\d+', user_input)[0])
-        msg = crawler.send()
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=msg)
-        )
-    elif any(x in user_input for x in ['喵', '探吉', '咪魯']):
-        url = CloudImage().meow()
-        msg = ImageSendMessage(
-            original_content_url=url,
-            preview_image_url=url
-        )
-        line_bot_api.reply_message(event.reply_token, msg)
-    elif any(x in user_input for x in ['汪']):
-        url = CloudImage().wang()
-        msg = ImageSendMessage(
-            original_content_url=url,
-            preview_image_url=url
-        )
-        line_bot_api.reply_message(event.reply_token, msg)
-    elif '融資' in user_input:
-        try:
-            stock_info = StockInfo()
-            margin_purchase = stock_info.margin_purchase(re.findall('\d+', user_input)[0])
-            msg = margin_purchase.message()
-        except:
-            msg = '查無此股票'
-        line_bot_api.reply_message(
-          
-            event.reply_token,
-            TextSendMessage(text=msg)
-        )
+    if event.message.type == 'text':
+        user_input = event.message.text
+        if '營收' in user_input:
+            crawler = RevenueCrawler(re.findall('\d+', user_input)[0])
+            msg = crawler.send()
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=msg)
+            )
+        elif any(x in user_input for x in ['喵', '探吉', '咪魯']):
+            url = CloudImage().meow()
+            msg = ImageSendMessage(
+                original_content_url=url,
+                preview_image_url=url
+            )
+            line_bot_api.reply_message(event.reply_token, msg)
+        elif any(x in user_input for x in ['汪']):
+            url = CloudImage().wang()
+            msg = ImageSendMessage(
+                original_content_url=url,
+                preview_image_url=url
+            )
+            line_bot_api.reply_message(event.reply_token, msg)
+        elif '融資' in user_input:
+            try:
+                stock_info = StockInfo()
+                margin_purchase = stock_info.margin_purchase(re.findall('\d+', user_input)[0])
+                msg = margin_purchase.message()
+            except:
+                msg = '查無此股票'
+            line_bot_api.reply_message(
+
+                event.reply_token,
+                TextSendMessage(text=msg)
+            )
+    elif event.message.type == 'image':
+        message_id = event.message.id
+        message_content = line_bot_api.get_message_content(message_id)
+        file_path = './sent_img.png'    
+        file = open(file_path, 'w+b')
+        for chunk in message_content.iter_content():
+            file.write(chunk)
+        file.close
+        CloudImage().upload(file_path)
+
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
