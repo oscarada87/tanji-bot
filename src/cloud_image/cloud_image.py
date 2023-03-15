@@ -23,5 +23,6 @@ class CloudImage():
     result = cloudinary.Search().expression('folder=doggy/*').execute()
     return random.choice(result['resources'])['secure_url']
 
-  def upload(self, file_path):
-     cloudinary.uploader.upload(file_path, folder='undefined_species')
+  def upload(self, file_path, folder='undefined_species'):
+     result  = cloudinary.uploader.upload(file_path, folder=folder)
+     return result['public_id']

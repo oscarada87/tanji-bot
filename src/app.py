@@ -8,7 +8,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, ImageMessage, TextSendMessage, ImageSendMessage,
+    MessageEvent, TextMessage, ImageMessage, TextSendMessage, ImageSendMessage, TemplateSendMessage, ConfirmTemplate, PostbackAction,
 )
 
 from valuation.gino.crawler import RevenueCrawler
@@ -90,12 +90,35 @@ def handle_message(event):
     elif event.message.type == 'image':
         message_id = event.message.id
         message_content = line_bot_api.get_message_content(message_id)
-        file_path = './sent_img.png'    
+        file_path = './sent_img.png'
         file = open(file_path, 'w+b')
         for chunk in message_content.iter_content():
             file.write(chunk)
         file.close
-        CloudImage().upload(file_path)
+        file_public_id = CloudImage().upload(file_path)
+
+        which_species_msg = TemplateSendMessage(
+            alt_text='which_species_template',
+            template=ConfirmTemplate(
+                text='奇怪的生物增加了！這是一隻：',
+                actions=[
+                    PostbackAction(
+                        label='卯貓',
+                        # display_text='毛～～',
+                        data=f'action=move_file&folder=miru&file_public_id={file_public_id}'
+                    ),
+                    PostbackAction(
+                        label='狗勾',
+                        # display_text='汪！汪！',
+                        data=f'action=move_file&folder=doggy&file_public_id={file_public_id}'
+                    )
+                ]
+            )
+        )
+        line_bot_api.reply_message(
+            event.reply_token,
+            which_species_msg
+        )
 
 
 
