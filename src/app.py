@@ -89,7 +89,7 @@ def handle_message(event):
         try:
             msg = CloudImage().create_auth(user_input.split()[1], event.source.user_id)
         except:
-            msg = '密碼錯誤'
+            msg = '密碼錯誤 - 請洽管理員'
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=msg)
