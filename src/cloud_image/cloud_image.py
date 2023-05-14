@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
@@ -16,6 +17,7 @@ class CloudImage():
             api_key=os.getenv('CLOUDINARY_API_KEY'),
             api_secret=os.getenv('CLOUDINARY_API_SECRET')
         )
+        self.auth_user_file = os.path.join(Path(__file__).parents[1], './tmp/auth_user.csv')
 
     def meow(self):
         result = cloudinary.Search().expression('tags=cat').execute()
@@ -40,10 +42,9 @@ class CloudImage():
 
     def create_auth(self, password, user_id):
         if password == os.getenv('IMAGE_UPLOAD_SECRET'):
-            csv_file = f'./tmp/auth_user.csv'
             current_time = datetime.now()
             formatted_time = current_time.strftime("%Y/%m/%d %H:%M:%S")
-            with open(csv_file, 'a', newline='') as file:
+            with open(self.auth_user_file, 'a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow([user_id, formatted_time])
 
@@ -52,8 +53,7 @@ class CloudImage():
             return '密碼錯誤'
       
     def auth(self, user_id):
-        csv_file = f'./tmp/auth_user.csv'
-        with open(csv_file, 'r', newline='') as file:
+        with open(self.auth_user_file, 'r', newline='') as file:
             reader = csv.reader(file)
             for row in reader:
                 if row[0] == user_id:

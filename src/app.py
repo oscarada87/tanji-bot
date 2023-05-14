@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from flask import Flask, request, abort
 
 from linebot import (
@@ -88,8 +89,9 @@ def handle_message(event):
     elif '通關密語' in user_input:
         try:
             msg = CloudImage().create_auth(user_input.split()[1], event.source.user_id)
-        except:
-            msg = '密碼錯誤 - 請洽管理員'
+        except Exception as e:
+            print(e)
+            msg = '密碼錯誤 - 請洽管理員' + str(e)
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=msg)
@@ -102,7 +104,7 @@ def handle_image_message(event):
        return
     message_id = event.message.id
     message_content = line_bot_api.get_message_content(message_id)
-    file_path = './tmp/sent_img.png'
+    file_path = os.path.join(Path(__file__).parent, './tmp/sent_img.png')
     file = open(file_path, 'w+b')
     for chunk in message_content.iter_content():
         file.write(chunk)
