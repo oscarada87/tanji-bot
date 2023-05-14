@@ -18,9 +18,6 @@ import re
 from cloud_image.cloud_image import CloudImage
 from stock_lib.stock_info import StockInfo
 import json
-import pdb
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 app.config.from_object('instance.config.Config')
@@ -53,11 +50,8 @@ def callback():
 
 
 @handler.add(MessageEvent, message=TextMessage)
-# message=TextMessage
-# message=ImageMessage
 def handle_message(event):
-    print(event.source)
-    # print(event)
+    # print(event.source)
     user_input = event.message.text
     if '營收' in user_input:
         crawler = RevenueCrawler(re.findall('\d+', user_input)[0])
@@ -88,7 +82,15 @@ def handle_message(event):
         except:
             msg = '查無此股票'
         line_bot_api.reply_message(
-
+            event.reply_token,
+            TextSendMessage(text=msg)
+        )
+    elif '通關密語' in user_input:
+        try:
+            msg = CloudImage().create_auth(user_input.split()[1], event.source.user_id)
+        except:
+            msg = '密碼錯誤'
+        line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=msg)
         )
@@ -96,6 +98,8 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image_message(event):
+    if not CloudImage().auth(event.source.user_id):
+       return
     message_id = event.message.id
     message_content = line_bot_api.get_message_content(message_id)
     file_path = './tmp/sent_img.png'
@@ -114,19 +118,15 @@ def handle_image_message(event):
             actions=[
                 PostbackAction(
                     label='卯貓',
-                    # display_text='毛～～',
                     data=postback_cat_payload
                 ),
                 PostbackAction(
                     label='狗勾',
-                    # display_text='汪！汪！',
                     data=postback_dog_payload
                 )
             ]
         )
     )
-    if os.path.exists(file_path):
-      os.remove(file_path)
     line_bot_api.reply_message(
         event.reply_token,
         which_species_msg
@@ -134,6 +134,8 @@ def handle_image_message(event):
 
 @handler.add(PostbackEvent)
 def handle_postback_event(event):
+    if not CloudImage().auth(event.source.user_id):
+      return
     payload = json.loads(event.postback.data)
     if payload['action'] == 'move_image':
       text = CloudImage().move(payload['file_public_id'], payload['folder'], tags=payload['tags'])
@@ -144,4 +146,4 @@ def handle_postback_event(event):
     print(event)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')
