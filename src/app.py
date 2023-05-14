@@ -10,7 +10,7 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, ImageMessage, TextSendMessage, ImageSendMessage, 
-    TemplateSendMessage, ConfirmTemplate, PostbackAction, PostbackEvent
+    TemplateSendMessage, ButtonsTemplate, PostbackAction, PostbackEvent
 )
 
 from valuation.gino.crawler import RevenueCrawler
@@ -19,6 +19,9 @@ import re
 from cloud_image.cloud_image import CloudImage
 from stock_lib.stock_info import StockInfo
 import json
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 app.config.from_object('instance.config.Config')
@@ -109,13 +112,16 @@ def handle_image_message(event):
     for chunk in message_content.iter_content():
         file.write(chunk)
     file.close
-    file_public_id = CloudImage().upload(file_path)
+    upload_result = CloudImage().upload(file_path)
+    file_public_id = upload_result['public_id']
 
     postback_dog_payload = json.dumps({ 'action': 'move_image', 'folder': 'doggy', 'file_public_id': file_public_id, 'tags': ['dog']})
     postback_cat_payload = json.dumps({ 'action': 'move_image', 'folder': 'miru', 'file_public_id': file_public_id, 'tags': ['cat'] })
+    postback_delete_payload = json.dumps({ 'action': 'delete', 'file_public_id': file_public_id })
     which_species_msg = TemplateSendMessage(
         alt_text='奇怪的生物增加了！這是一隻：',
-        template=ConfirmTemplate(
+        template=ButtonsTemplate(
+            thumbnail_image_url=upload_result['secure_url'],
             text='奇怪的生物增加了！這是一隻：',
             actions=[
                 PostbackAction(
@@ -125,6 +131,10 @@ def handle_image_message(event):
                 PostbackAction(
                     label='狗勾',
                     data=postback_dog_payload
+                ),
+                PostbackAction(
+                    label='略過',
+                    data=postback_delete_payload
                 )
             ]
         )
@@ -145,7 +155,12 @@ def handle_postback_event(event):
           event.reply_token,
           TextSendMessage(text=text)
       )
-    print(event)
+    elif payload['action'] == 'delete':
+      text = CloudImage().delete(payload['file_public_id'])
+      line_bot_api.reply_message(
+          event.reply_token,
+          TextSendMessage(text=text)
+      )
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)

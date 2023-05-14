@@ -29,7 +29,7 @@ class CloudImage():
 
     def upload(self, file_path, folder='undefined_species'):
         result = cloudinary.uploader.upload(file_path, folder=folder)
-        return result['public_id']
+        return { 'public_id': result['public_id'], 'secure_url': result['secure_url'] }
 
     def move(self, file_public_id, folder, tags=[]):
         cloudinary.api.update(file_public_id, asset_folder=folder, tags=','.join(tags))
@@ -60,3 +60,7 @@ class CloudImage():
                     return True
         
         return False
+  
+    def delete(self, file_public_id):
+        cloudinary.api.delete_resources([file_public_id])
+        return '已忽略'
