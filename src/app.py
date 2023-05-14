@@ -8,7 +8,8 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, ImageMessage, TextSendMessage, ImageSendMessage, TemplateSendMessage, ConfirmTemplate, PostbackAction,
+    MessageEvent, TextMessage, ImageMessage, TextSendMessage, ImageSendMessage, 
+    TemplateSendMessage, ConfirmTemplate, PostbackAction, PostbackEvent
 )
 
 from valuation.gino.crawler import RevenueCrawler
@@ -16,6 +17,10 @@ import re
 
 from cloud_image.cloud_image import CloudImage
 from stock_lib.stock_info import StockInfo
+import json
+import pdb
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 app.config.from_object('instance.config.Config')
@@ -47,80 +52,96 @@ def callback():
     return 'OK'
 
 
-@handler.add(MessageEvent)
+@handler.add(MessageEvent, message=TextMessage)
 # message=TextMessage
 # message=ImageMessage
 def handle_message(event):
-    print(event)
-    if event.message.type == 'text':
-        user_input = event.message.text
-        if '營收' in user_input:
-            crawler = RevenueCrawler(re.findall('\d+', user_input)[0])
-            msg = crawler.send()
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=msg)
-            )
-        elif any(x in user_input for x in ['喵', '探吉', '咪魯']):
-            url = CloudImage().meow()
-            msg = ImageSendMessage(
-                original_content_url=url,
-                preview_image_url=url
-            )
-            line_bot_api.reply_message(event.reply_token, msg)
-        elif any(x in user_input for x in ['汪']):
-            url = CloudImage().wang()
-            msg = ImageSendMessage(
-                original_content_url=url,
-                preview_image_url=url
-            )
-            line_bot_api.reply_message(event.reply_token, msg)
-        elif '融資' in user_input:
-            try:
-                stock_info = StockInfo()
-                margin_purchase = stock_info.margin_purchase(re.findall('\d+', user_input)[0])
-                msg = margin_purchase.message()
-            except:
-                msg = '查無此股票'
-            line_bot_api.reply_message(
-
-                event.reply_token,
-                TextSendMessage(text=msg)
-            )
-    elif event.message.type == 'image':
-        message_id = event.message.id
-        message_content = line_bot_api.get_message_content(message_id)
-        file_path = './sent_img.png'
-        file = open(file_path, 'w+b')
-        for chunk in message_content.iter_content():
-            file.write(chunk)
-        file.close
-        file_public_id = CloudImage().upload(file_path)
-
-        which_species_msg = TemplateSendMessage(
-            alt_text='which_species_template',
-            template=ConfirmTemplate(
-                text='奇怪的生物增加了！這是一隻：',
-                actions=[
-                    PostbackAction(
-                        label='卯貓',
-                        # display_text='毛～～',
-                        data=f'action=move_file&folder=miru&file_public_id={file_public_id}'
-                    ),
-                    PostbackAction(
-                        label='狗勾',
-                        # display_text='汪！汪！',
-                        data=f'action=move_file&folder=doggy&file_public_id={file_public_id}'
-                    )
-                ]
-            )
-        )
+    print(event.source)
+    # print(event)
+    user_input = event.message.text
+    if '營收' in user_input:
+        crawler = RevenueCrawler(re.findall('\d+', user_input)[0])
+        msg = crawler.send()
         line_bot_api.reply_message(
             event.reply_token,
-            which_species_msg
+            TextSendMessage(text=msg)
+        )
+    elif any(x in user_input for x in ['喵', '探吉', '咪魯']):
+        url = CloudImage().meow()
+        msg = ImageSendMessage(
+            original_content_url=url,
+            preview_image_url=url
+        )
+        line_bot_api.reply_message(event.reply_token, msg)
+    elif any(x in user_input for x in ['汪']):
+        url = CloudImage().wang()
+        msg = ImageSendMessage(
+            original_content_url=url,
+            preview_image_url=url
+        )
+        line_bot_api.reply_message(event.reply_token, msg)
+    elif '融資' in user_input:
+        try:
+            stock_info = StockInfo()
+            margin_purchase = stock_info.margin_purchase(re.findall('\d+', user_input)[0])
+            msg = margin_purchase.message()
+        except:
+            msg = '查無此股票'
+        line_bot_api.reply_message(
+
+            event.reply_token,
+            TextSendMessage(text=msg)
         )
 
 
+@handler.add(MessageEvent, message=ImageMessage)
+def handle_image_message(event):
+    message_id = event.message.id
+    message_content = line_bot_api.get_message_content(message_id)
+    file_path = './tmp/sent_img.png'
+    file = open(file_path, 'w+b')
+    for chunk in message_content.iter_content():
+        file.write(chunk)
+    file.close
+    file_public_id = CloudImage().upload(file_path)
+
+    postback_dog_payload = json.dumps({ 'action': 'move_image', 'folder': 'doggy', 'file_public_id': file_public_id, 'tags': ['dog']})
+    postback_cat_payload = json.dumps({ 'action': 'move_image', 'folder': 'miru', 'file_public_id': file_public_id, 'tags': ['cat'] })
+    which_species_msg = TemplateSendMessage(
+        alt_text='奇怪的生物增加了！這是一隻：',
+        template=ConfirmTemplate(
+            text='奇怪的生物增加了！這是一隻：',
+            actions=[
+                PostbackAction(
+                    label='卯貓',
+                    # display_text='毛～～',
+                    data=postback_cat_payload
+                ),
+                PostbackAction(
+                    label='狗勾',
+                    # display_text='汪！汪！',
+                    data=postback_dog_payload
+                )
+            ]
+        )
+    )
+    if os.path.exists(file_path):
+      os.remove(file_path)
+    line_bot_api.reply_message(
+        event.reply_token,
+        which_species_msg
+    )
+
+@handler.add(PostbackEvent)
+def handle_postback_event(event):
+    payload = json.loads(event.postback.data)
+    if payload['action'] == 'move_image':
+      text = CloudImage().move(payload['file_public_id'], payload['folder'], tags=payload['tags'])
+      line_bot_api.reply_message(
+          event.reply_token,
+          TextSendMessage(text=text)
+      )
+    print(event)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
