@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: remote ssh command
-        uses: appleboy/ssh-action@v0.1.7
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.deploy_host }}
           username: ${{ secrets.deploy_username }}
