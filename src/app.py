@@ -20,6 +20,7 @@ from cloud_image.cloud_image import CloudImage
 from stock_lib.stock_info import StockInfo
 import json
 import logging
+# import pdb
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -57,7 +58,19 @@ def callback():
 def handle_message(event):
     # print(event.source)
     user_input = event.message.text
-    if '營收' in user_input:
+    if '暫停上傳' == user_input and event.source.type == 'group':
+        msg = CloudImage().pause(event.source.group_id)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=msg)
+        )
+    elif '開啟上傳' == user_input and event.source.type == 'group':
+        msg = CloudImage().resume(event.source.group_id)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=msg)
+        )
+    elif '營收' in user_input:
         crawler = RevenueCrawler(re.findall('\d+', user_input)[0])
         msg = crawler.send()
         line_bot_api.reply_message(
@@ -104,7 +117,9 @@ def handle_message(event):
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image_message(event):
     if not CloudImage().auth(event.source.user_id):
-       return
+        return
+    if event.source.type == 'group' and CloudImage().is_paused(event.source.group_id):
+        return
     message_id = event.message.id
     message_content = line_bot_api.get_message_content(message_id)
     file_path = os.path.join(Path(__file__).parent, './tmp/sent_img.png')
@@ -163,4 +178,4 @@ def handle_postback_event(event):
       )
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')

@@ -18,6 +18,7 @@ class CloudImage():
             api_secret=os.getenv('CLOUDINARY_API_SECRET')
         )
         self.auth_user_file = os.path.join(Path(__file__).parents[1], './tmp/auth_user.csv')
+        self.pause_group_file = os.path.join(Path(__file__).parents[1], './tmp/pause_group.csv')
 
     def meow(self):
         result = cloudinary.Search().expression('tags=cat').execute()
@@ -64,3 +65,30 @@ class CloudImage():
     def delete(self, file_public_id):
         cloudinary.api.delete_resources([file_public_id])
         return '已忽略'
+    
+    def pause(self, group_id):
+        current_time = datetime.now()
+        formatted_time = current_time.strftime("%Y/%m/%d %H:%M:%S")
+        with open(self.pause_group_file, 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([group_id, formatted_time])
+
+        return '此群組已暫停上傳功能'
+  
+    def resume(self, group_id):
+        with open(self.pause_group_file, 'rb') as inp, open(self.pause_group_file, 'wb') as out:
+          writer = csv.writer(out)
+          for row in csv.reader(inp):
+              if row[0] != group_id:
+                  writer.writerow(row)
+
+        return '此群組已開啟上傳功能'
+    
+    def is_paused(self, group_id):
+        with open(self.pause_group_file, 'r', newline='') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] == group_id:
+                    return True
+        
+        return False
