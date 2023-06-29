@@ -30,7 +30,7 @@ jobs:
           key: ${{ secrets.ssh_private_key }}
           script_stop: true
           script: |
-            cd tanjimeow && docker-compose down --rmi all --remove-orphans
+            cd tanjimeow && docker compose down --rmi all --remove-orphans
             git fetch origin main
             git reset --hard origin/main
             cp ~/shared/.tanjimeow.env ~/tanjimeow/.env
