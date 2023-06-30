@@ -138,5 +138,5 @@ cython_debug/
 
 /src/tmp/*
 !/src/tmp/.keep
-
+/bin/*
 .vscode/
