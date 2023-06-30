@@ -29,6 +29,7 @@ packaging==23.0
 pycparser==2.21
 PySocks==1.7.1
 python-dotenv==0.21.1
+redis==4.6.0
 requests==2.31.0
 selenium==4.10.0
 six==1.16.0
